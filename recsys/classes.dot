@@ -1,0 +1,8 @@
+digraph "classes" {
+charset="utf-8"
+rankdir=BT
+"0" [label="{Appliance|_amp_threshold\l_column\l_df\l_df_occ : NoneType\l_features : list\l_groupby\l_norm_amp\l_norm_freq\l_sample_rate : int\l_width_threshold\lamp_threshold\lcolumn\ldf\ldf_occ\lfeatures\lgroupby\lnorm_amp\lnorm_freq\lsample_rate\lwidth_threshold\l|__analyze()\l__init__(df, column, amp_threshold, width_threshold, norm_amp, norm_freq, groupby, df_occ, sample_rate)\lplot()\lsplit_at_change_grouped(df, groupby, threshold, width_threhold, column)\l}", shape="record"];
+"1" [label="{Evaluator|_rec\l|__churn()\l__coverage()\l__diversity()\l__f1()\l__init__(rec)\l__mae()\l__map()\l__ndcg()\l__novelty()\l__precision()\l__recall()\l__responsiveness()\l__rmse()\levaluate()\l}", shape="record"];
+"2" [label="{Recommendation|_action\l_app\l_datetime\l_duration\l_explanation\l_relevance : int\laction\lapp\ldatetime\lduration\lexplanation\lrelevance\l|__calc_relevance()\l__init__(datetime, duration, app, action, explanation)\l__repr__()\l}", shape="record"];
+"3" [label="{Recommender|_app\l_recs : list\lapp\l|__init__(app)\lamp()\lfreq()\lgenerate(freq, amp, occ)\locc()\l}", shape="record"];
+}
