@@ -1,4 +1,6 @@
 # Imports #
+import time
+import resource
 import pandas as pd
 import matplotlib.pyplot as plt
 ####################
@@ -57,6 +59,11 @@ def zero_to_nan(values):
 def average_amplitude(df, column='state'):
     """Calculate the average amplitude of a df"""
     return df[column].where(df[column] != 0).mean()
+
+def print_compute_time_memory(time_start):
+    time_elapsed = (time.perf_counter() - time_start)
+    memMb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
+    print("Computed in %5.1f s and used %5.1f MB memory" % (time_elapsed,memMb))
 ####################
 
 # Recsys functions #

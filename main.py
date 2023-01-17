@@ -8,6 +8,7 @@ from functions import *
 ####################
 
 # Data imports #
+start = time.perf_counter()
 df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
 kettle_df = postprocess_data(prepare_data(import_data(dataset_path_kettle)), start_date=start_date, end_date=end_date)
 tv_df = postprocess_data(prepare_data(import_data(dataset_path_tv)), start_date=start_date, end_date=end_date)
@@ -70,18 +71,20 @@ computer2 = rs.Appliance(
     amp_threshold=30,
     width_threshold=20,
     groupby='1d')
+print_compute_time_memory(start)
 ####################
 
-def rec():
+def plot():
     # Plot appliances
-    # tv.plot()
-    # kettle.plot()
-    # toaster.plot()
-    # fridge.plot()
-    # washing_machine.plot()
-    # computer1.plot()
-    # computer2.plot()
-   
+    tv.plot()
+    kettle.plot()
+    toaster.plot()
+    fridge.plot()
+    washing_machine.plot()
+    computer1.plot()
+    computer2.plot()
+
+def rec():
     # Instantiate a recommender
     rec_tv = rs.Recommender(app=tv)
     rec_toaster = rs.Recommender(app=toaster)
