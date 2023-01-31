@@ -10,7 +10,7 @@ class Appliance:
     def __init__(
         self, 
         df: pd.DataFrame, 
-        column: str, 
+        label: str, 
         amp_threshold: float, 
         width_threshold: float, 
         groupby: str,
@@ -19,7 +19,8 @@ class Appliance:
         df_occ: pd.DataFrame = None,
         sample_rate: int = 3
     ):
-        self._column = column
+        self.label = label
+        self._column = 'state'
         self._amp_threshold = amp_threshold
         self._width_threshold = width_threshold
         self._groupby = groupby
@@ -120,6 +121,7 @@ class Appliance:
         return self.split_at_change_grouped(self._df, groupby=self._groupby, column=self._column, threshold=self._amp_threshold, width_threhold=self._width_threshold) 
 
     def plot(self):
+        label = self.label
         column1 = self._column
         norm_amp = self._norm_amp
         norm_freq = self._norm_freq
@@ -127,7 +129,7 @@ class Appliance:
         features = self._features
         fig, (ax1, ax2) = plt.subplots(2)
         ax1.plot(df, label=column1, color='red')
-        ax1.set_title(f'{column1}')
+        ax1.set_title(f'{label}')
         if norm_amp != None: 
             amp = self.compute_average_amp()
             ax1.axhline(y=norm_amp, color='orange', linestyle='--', label='Normal amplitude')
@@ -213,9 +215,10 @@ class Recommendation:
 
 # Class definition #
 class Recommender:
-    def __init__(self, app: Appliance):
+    def __init__(self, app: Appliance, config: list[bool] = [True, True, True]):
         self._app = app
         self._recs = []
+        self.config = config
 
     @property
     def app(self):
@@ -225,14 +228,17 @@ class Recommender:
     def recs(self):
         if len(self._recs) == 0:
             # Throw error because recs is empty
-            raise Exception('No recommendations generated yet. Call generate() first.')
+            # raise Exception('No recommendations generated yet. Call generate() first.')
+            return []
         return self._recs
 
     @property
     def y_pred(self):
         if len(self._recs) == 0:
-            # Throw error because recs is empty
-            raise Exception('No recommendations generated yet. Call generate() first.')
+            # # Throw error because recs is empty
+            # raise Exception('No recommendations generated yet. Call generate() first.')
+            # # TODO: account when generate() is called but no recs are generated
+            return []
         return [rec.action for rec in self._recs]
 
     def amp(self):
@@ -316,14 +322,13 @@ class Recommender:
                 recs.append(rec) 
         return recs
 
-    def generate(self, freq=False, amp=False, occ=True):
-        if freq: self._recs += self.freq()
-        if amp: self._recs += self.amp()
-        if occ: self._recs += self.occ()
+    def generate(self):
+        if self.config[0]: self._recs += self.freq()
+        if self.config[1]: self._recs += self.amp()
+        if self.config[2]: self._recs += self.occ()
 
         # Sort recommendations by relevance in descending order
         self._recs.sort(key=lambda x: x.relevance, reverse=True)
-
         return self._recs
 ####################
 
@@ -338,21 +343,29 @@ class Evaluator:
     def __tp(self):
         y_true = self._y_true
         y_pred = self._y_pred
+        if len(y_pred) == 0:
+            return 0
         return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 1])
 
     def __fp(self):
         y_true = self._y_true
         y_pred = self._y_pred
+        if len(y_pred) == 0:
+            return 0
         return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 1])
 
     def __tn(self):
         y_true = self._y_true
         y_pred = self._y_pred
+        if len(y_pred) == 0:
+            return 0
         return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 0])
 
     def __fn(self):
         y_true = self._y_true
         y_pred = self._y_pred
+        if len(y_pred) == 0:
+            return 0
         return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 0])
 
     def __estimate_y_true(self):
@@ -367,6 +380,8 @@ class Evaluator:
 
     def __calc_relevance(self, recs=None):
         recs = self._rec.recs if recs is None else recs
+        if len(recs) == 0:
+            return [0]
         relevence = [rec.relevance for rec in recs]
         max_relevance = max(relevence)
         norm_relevence = [rel / max_relevance for rel in relevence]
@@ -418,6 +433,8 @@ class Evaluator:
     @property
     def mae(self):
         n = len(self._rec.recs)
+        if n == 0:
+            return 0
         y_true = np.array(self._y_true)
         y_pred = np.array(self._y_pred)
         mae = 1/n * sum(abs(y_true - y_pred))
@@ -426,6 +443,8 @@ class Evaluator:
     @property
     def rmse(self):
         n = len(self._rec.recs)
+        if n == 0:
+            return 0
         y_true = np.array(self._y_true)
         y_pred = np.array(self._y_pred)
         mse = 1/n * sum((y_true - y_pred)**2)
@@ -435,6 +454,8 @@ class Evaluator:
     @property
     def ap(self):
         n = len(self._rec.recs)
+        if n == 0:
+            return 0
         precision = np.array(self.precision)
         relevance = np.array(self.relevance)
         binary_relevance = np.array([1 if rel > Evaluator.relevence_threshold else 0 for rel in relevance])
@@ -445,6 +466,8 @@ class Evaluator:
     def ndcg(self):
         relevance = self.relevance
         n = len(self._rec.recs)
+        if n == 0:
+            return 0
         dcg = sum([relevance[i] / np.log2(i + 2) for i in range(n)])
         idcg = sum([1 / np.log2(i + 2) for i in range(n)])
         ndcg = dcg / idcg
@@ -468,6 +491,8 @@ class Evaluator:
     @property
     def novelty(self):
         n = len(self._rec.recs)
+        if n == 0:
+            return 0
         total_relevance = sum([rec.relevance for rec in self._rec.recs])
         novelty = total_relevance / n
         return novelty
@@ -483,7 +508,7 @@ class Evaluator:
             'NDCG': self.ndcg,
             'Coverage': self.coverage,
             'Novelty': self.novelty,
-            'Diversity (incomplete)': self.diversity,
+            # 'Diversity (incomplete)': self.diversity,
         }
         return report
     
@@ -493,5 +518,61 @@ class Evaluator:
         print("y_true:\t   |\t1\t|\t0\t|")
         print("y_pred:\t 1 |\t{}\t|\t{}\t|".format(self.__tp(), self.__fp()))
         print("y_pred:\t 0 |\t{}\t|\t{}\t|".format(self.__fn(), self.__tn()))
+
+# Class defintion #
+class Household:
+    def __init__(self, recommenders: list[Recommender] = []):
+        self.recommenders = recommenders
+        self._recs = []
+        self._evals = []
+
+    def add_recommender(self, recommender):
+        self.recommenders.append(recommender)
+
+    def generate_recs(self):
+        for recommender in self.recommenders:
+            self._recs.append(recommender.generate())
+            self._evals.append(Evaluator(recommender, recommender.y_pred))
+        return self._recs
+
+    def individial_report(self):
+        for _eval in self._evals:
+            print(_eval._rec._app.label, _eval.report())
+
+    def evaluate(self, recs=None):
+        # Compute average metrics
+        avg_metrics = {
+            'Precision': 0.0,
+            'Recall': 0.0,
+            'F1': 0.0,
+            'MAE': 0.0,
+            'RMSE': 0.0,
+            'AP': 0.0,
+            'NDCG': 0.0,
+            'Coverage': 0.0,
+            'Novelty': 0.0,
+            # 'Diversity (incomplete)': self.diversity,
+        }
+        for _eval in self._evals:
+            # Compute average precision from _eval in one line
+            avg_metrics['Precision'] += _eval.precision
+            avg_metrics['Recall'] += _eval.recall
+            avg_metrics['F1'] += _eval.f1
+            avg_metrics['MAE'] += _eval.mae
+            avg_metrics['RMSE'] += _eval.rmse
+            avg_metrics['AP'] += _eval.ap
+            avg_metrics['NDCG'] += _eval.ndcg
+            avg_metrics['Coverage'] += _eval.coverage
+            avg_metrics['Novelty'] += _eval.novelty
+        for key in avg_metrics:
+            avg_metrics[key] /= len(self._evals)
+
+        return avg_metrics
+            
+
+
+            
+        
+        
 
 ####################

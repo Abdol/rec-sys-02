@@ -5,10 +5,12 @@ import psutil
 from constants import *
 import recsys as rs
 from functions import *
+plt.rcParams.update({'font.size': plot_font_size})
 ####################
 
 # Data imports #
 start = time.perf_counter()
+df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
 df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
 kettle_df = postprocess_data(prepare_data(import_data(dataset_path_kettle)), start_date=start_date, end_date=end_date)
 tv_df = postprocess_data(prepare_data(import_data(dataset_path_tv)), start_date=start_date, end_date=end_date)
@@ -17,13 +19,15 @@ fridge_df = postprocess_data(prepare_data(import_data(dataset_path_fridge)), sta
 washing_machine_df = postprocess_data(prepare_data(import_data(dataset_path_washing_machine)), start_date=washing_machine_start_date, end_date=washing_machine_end_date)
 computer1_df = postprocess_data(prepare_data(import_data(dataset_path_computer1)), start_date=start_date, end_date=end_date)
 computer2_df = postprocess_data(prepare_data(import_data(dataset_path_computer2)), start_date=start_date, end_date=end_date)
-
+print_compute_time_memory(start)
 ####################
 
 # Appliances #
+start = time.perf_counter()
+print('Creating appliance objects...')
 kettle = rs.Appliance(
     df=kettle_df, 
-    column='state', 
+    label='kettle', 
     amp_threshold=2500, 
     width_threshold=20, 
     norm_amp=3000,
@@ -31,43 +35,43 @@ kettle = rs.Appliance(
     groupby='1d')
 tv = rs.Appliance(
     df=tv_df, 
-    column='state', 
+    label='tv', 
     amp_threshold=40, 
     width_threshold=10, 
     norm_amp=50,
     norm_freq=1,
     groupby='1d',
-    df_occ=df_occ_kitchen)
+    df_occ=df_occ_living_room)
 toaster = rs.Appliance(
     df=toaster_df, 
-    column='state', 
+    label='toaster', 
     amp_threshold=500, 
     width_threshold=20, 
-    norm_amp=600,
+    # norm_amp=600,
     norm_freq=2,
     groupby='1d')
 fridge = rs.Appliance(
     df=fridge_df,
-    column='state',
+    label='fridge',
     amp_threshold=100,
     width_threshold=10,
     groupby='1d')
 washing_machine = rs.Appliance(
     df=washing_machine_df,
-    column='state',
+    label='washing_machine',
     amp_threshold=100,
     width_threshold=10,
     norm_freq=2,
     groupby='7d')
 computer1 = rs.Appliance(
     df=computer1_df,
-    column='state',
+    label='computer1',
     amp_threshold=30,
     width_threshold=20,
     groupby='1d')
 computer2 = rs.Appliance(
     df=computer2_df,
-    column='state',
+    label='computer2',
     amp_threshold=30,
     width_threshold=20,
     groupby='1d')
@@ -85,23 +89,24 @@ def plot():
     computer2.plot()
 
 def rec():
+    print('Generating recommendations between {} and {}...'.format(start_date, end_date))
     # Instantiate a recommender
-    rec_tv = rs.Recommender(app=tv)
-    rec_toaster = rs.Recommender(app=toaster)
-    rec_kettle = rs.Recommender(app=kettle)
-    rec_fridge = rs.Recommender(app=fridge)
-    rec_washing_machine = rs.Recommender(app=washing_machine)
-    rec_computer1 = rs.Recommender(app=computer1)
-    rec_computer2 = rs.Recommender(app=computer2)
+    rec_tv = rs.Recommender(app=tv, config=[True, True, True])
+    rec_toaster = rs.Recommender(app=toaster, config=[True, True, False])
+    rec_kettle = rs.Recommender(app=kettle, config=[False, True, False])
+    rec_fridge = rs.Recommender(app=fridge, config=[False, True, False])
+    rec_washing_machine = rs.Recommender(app=washing_machine, config=[True, True, False])
+    rec_computer1 = rs.Recommender(app=computer1, config=[True, True, False])
+    rec_computer2 = rs.Recommender(app=computer2, config=[True, True, False])
     
     # Generate recommendations
-    recs_tv = rec_tv.generate(freq=True, amp=True, occ=True)
-    recs_toaster = rec_toaster.generate(freq=True, amp=True, occ=False)
-    recs_kettle = rec_kettle.generate(freq=True, amp=True, occ=False)
-    recs_fridge = rec_fridge.generate(freq=True, amp=True, occ=False)
-    recs_washing_machine = rec_washing_machine.generate(freq=True, amp=True, occ=False)
-    recs_computer1 = rec_computer1.generate(freq=True, amp=True, occ=False)
-    recs_computer2 = rec_computer2.generate(freq=True, amp=True, occ=False)
+    recs_tv = rec_tv.generate()
+    recs_toaster = rec_toaster.generate()
+    recs_kettle = rec_kettle.generate()
+    recs_fridge = rec_fridge.generate()
+    recs_washing_machine = rec_washing_machine.generate()
+    recs_computer1 = rec_computer1.generate()
+    recs_computer2 = rec_computer2.generate()
     
     # Print recommendations
     recs_explained = {
@@ -112,7 +117,7 @@ def rec():
         'washing_machine':[str(row.relevance) + " " + row.explanation for row in recs_washing_machine],
         'computer1':[str(row.relevance) + " " + row.explanation for row in recs_computer1],
         'computer2':[str(row.relevance) + " " + row.explanation for row in recs_computer2]
-    }; print('Recommendations:')
+    }; print('\nRecommendations:')
     for key, value in recs_explained.items():
         print(key, *value, sep='\n')
     
@@ -125,7 +130,7 @@ def rec():
     eval_computer1 = rs.Evaluator(rec_computer1, rec_computer1.y_pred)
     eval_computer2 = rs.Evaluator(rec_computer2, rec_computer2.y_pred)
 
-    print('Evaluation Reports:')
+    print('\nEvaluation Reports:')
     print('TV:', eval_tv.report())
     print('Toaster:', eval_toaster.report())
     print('Kettle:', eval_kettle.report())
@@ -135,10 +140,28 @@ def rec():
     print('Computer Setup 2:', eval_computer2.report())
     # eval.confusion_matrix()
 
+def rec_household():
+    print('Generating recommendations between {} and {}...'.format(start_date, end_date))
+    # Instantiate a recommender
+    rec_tv = rs.Recommender(app=tv, config=[True, True, True])
+    rec_toaster = rs.Recommender(app=toaster, config=[True, True, False])
+    rec_kettle = rs.Recommender(app=kettle, config=[True, True, False])
+    rec_fridge = rs.Recommender(app=fridge, config=[False, True, False])
+    rec_washing_machine = rs.Recommender(app=washing_machine, config=[True, True, False])
+    rec_computer1 = rs.Recommender(app=computer1, config=[True, True, False])
+    rec_computer2 = rs.Recommender(app=computer2, config=[True, True, False])
+
+    house = rs.Household([rec_tv, rec_toaster, rec_kettle, rec_fridge, rec_washing_machine, rec_computer1, rec_computer2])
+    house_recs = house.generate_recs()
+    house.individial_report()
+    house_eval = house.evaluate()
+    print(house_eval)
+
 def main():
     # Record computation time
     start = time.perf_counter()
-    rec()
+    plot()
+    # rec_household()
     print_compute_time_memory(start)
 
 main()

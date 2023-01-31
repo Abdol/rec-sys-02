@@ -7,28 +7,27 @@ import numpy as np
 ####################
 
 # Parameters #
-dataset_path = 'data/states_30_11_2022.csv'
+dataset_path = '../data/states_30_11_2022.csv'
 _verbose = True
 export_folder = '30_11_2022'
 includer_header = True
 enable_zeropadding = True
 zeropadding_method = 'bfill'
 step = '3s'
-
 sensors_list = [
-    # ('localbytes', 'power', 'living_room_tv', 'float'), 
+    ('localbytes', 'power', 'living_room_tv', 'float'), 
     ('localbytes2', 'power', 'kitchen_kettle', 'float'),
-    # ('localbytes3', 'power', 'office_computer_setup_01', 'float'),
+    ('localbytes3', 'power', 'office_computer_setup_01', 'float'),
     ('localbytes4', 'power', 'kitchen_toaster', 'float'),
-    # ('localbytes5', 'power', 'kitchen_washing_machine', 'float'),
-    # ('localbytes7', 'power', 'office_computer_setup_02', 'float'),
-    # ('localbytes8', 'power', 'kitchen_fridge', 'float'),
-    # ('ewelink', 'th01_8dc96c24_humidity', 'living_room_humidity', 'float'),
-    # ('ewelink', 'th01_8dc96c24_temperature', 'living_room_temperature', 'float'),
-    # ('ewelink', 'th01_b0c70225_humidity', 'office_humidity', 'float'),
-    # ('ewelink', 'th01_b0c70225_temperature', 'office_temperature', 'float'),
-    # ('ewelink', 'ms01_ce61cc24_ias_zone', 'kitchen_occupancy', 'bool'),
-    # ('ewelink', 'ms01_72641c25_ias_zone', 'living_room_occupancy', 'bool'),
+    ('localbytes5', 'power', 'kitchen_washing_machine', 'float'),
+    ('localbytes7', 'power', 'office_computer_setup_02', 'float'),
+    ('localbytes8', 'power', 'kitchen_fridge', 'float'),
+    ('ewelink', 'th01_8dc96c24_humidity', 'living_room_humidity', 'float'),
+    ('ewelink', 'th01_8dc96c24_temperature', 'living_room_temperature', 'float'),
+    ('ewelink', 'th01_b0c70225_humidity', 'office_humidity', 'float'),
+    ('ewelink', 'th01_b0c70225_temperature', 'office_temperature', 'float'),
+    ('ewelink', 'ms01_ce61cc24_ias_zone', 'kitchen_occupancy', 'bool'),
+    ('ewelink', 'ms01_72641c25_ias_zone', 'living_room_occupancy', 'bool'),
     ]
 pd.options.mode.chained_assignment = None  # default='warn'
 #######################
@@ -49,6 +48,36 @@ def zeropad(df, step, method):
     df['ts'] = df['datetime'].astype(np.int64) // 10**9
     df = df[['ts', 'datetime', 'state']]
     if _verbose: print(df.head(50))
+    return df
+
+def filter_data_weather(df):
+    print('Filtering dataset to extract weather data...')
+    df = df[['state_id', 'domain', 'entity_id', 'state', 'attributes', 'last_changed']]
+    df = df.query('domain == "weather"')
+    # Extract the 'attributes' as seperate coliumns as the JSON object as follows:
+    # # "{""temperature"": 6.0, ""humidity"": 99, ""pressure"": 1025.5, ""wind_bearing"": 39.7, ""wind_speed"": 0.7}""
+    df['attributes'] = df['attributes'].str.replace('"', '')
+    df['attributes'] = df['attributes'].str.replace('{', '')
+    df['attributes'] = df['attributes'].str.replace('}', '')
+    df['attributes'] = df['attributes'].str.replace(' ', '')
+    df['attributes'] = df['attributes'].str.replace(',,', ',')
+    df['temperature'] = df['attributes'].str.split(',').str[0].str.split(':').str[1]
+    df['humidity'] = df['attributes'].str.split(',').str[1].str.split(':').str[1]
+    df['pressure'] = df['attributes'].str.split(',').str[2].str.split(':').str[1]
+    df['wind_bearing'] = df['attributes'].str.split(',').str[3].str.split(':').str[1]
+    df['wind_speed'] = df['attributes'].str.split(',').str[4].str.split(':').str[1]
+    df.insert(1, 'datetime',  pd.to_datetime(df['last_changed'], format="%Y-%m-%d %H:%M:%S"))
+    df.insert(2, 'ts', df.datetime.values.astype(np.int64) // 10 ** 9)
+    df['datetime'] = df['datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    df = df.drop(columns = ['state_id', 'last_changed', 'entity_id', 'domain', 'attributes'])
+    df.rename(columns={'state': 'weather'}, inplace=True)
+    column_names = ['datetime', 'ts', 'weather', 'temperature', 'humidity', 'pressure', 'wind_bearing', 'wind_speed']
+    df = df[pd.notna(df.weather)]
+    df = df.drop_duplicates()
+    df = df.drop_duplicates(subset=['datetime'])
+    df = df.reindex(columns=column_names)
+    df.reset_index(drop=True, inplace=True)
+
     return df
 
 def filter_data(df):
@@ -97,13 +126,21 @@ def export_parameters(df, plugid, parameter, filename = None, binary = False, ze
     if _verbose: print(_df.head(50)) 
     return _df
 
+def export_weather_data(df, filename = None):
+    print("Exporting weather dataset as CSV")
+    if filename is None:
+        df.to_csv(export_folder + '/weather.csv', index=False, header=includer_header)
+    else:
+        df.to_csv(export_folder + '/' + filename + '.csv', index=False, header=includer_header)
+
 def print_compute_time_memory(time_start):
     time_elapsed = (time.perf_counter() - time_start)
     memMb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0/1024.0
     print("Computed in %5.1f s and used %5.1f MB memory" % (time_elapsed,memMb))
 ####################
 
-def main():
+# Main functions
+def process_power():
     if not os.path.exists(export_folder):
         os.mkdir(export_folder)
 
@@ -113,8 +150,8 @@ def main():
     df = pd.read_csv(dataset_path)
     print('Dataset loaded from ', dataset_path)
     df = filter_data(df) # Dataset filtering
-    if _verbose: print(df.head())
-
+    if _verbose: print(df.head(50))
+    
     # Loop through parameters list
     for i in sensors_list:
         _plugid = i[0]
@@ -128,5 +165,24 @@ def main():
             df2 = export_parameters(df, _plugid, _parameter, _filename, zeropadding=enable_zeropadding, step=step, binary=True)
     print_compute_time_memory(time_start) # Calculate computational power and memory usage
     print('File saved.')
+
+def process_weather():
+    if not os.path.exists(export_folder):
+        os.mkdir(export_folder)
+     # Import dataset master file
+    time_start = time.perf_counter() # Start computational time counter
+    print ('Loading data...')
+    df = pd.read_csv(dataset_path)
+    print('Dataset loaded from ', dataset_path)
+    # df = filter_data(df) # Dataset filtering
+    df = filter_data_weather(df) # Dataset filtering
+    if _verbose: print(df.head(50))
+    export_weather_data(df, filename='weather') # Export weather data
+    print_compute_time_memory(time_start) # Calculate computational power and memory usage
+    print('File saved.')
+
+def main():
+    # process_power()
+   process_weather()
 
 main()
