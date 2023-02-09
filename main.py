@@ -8,18 +8,43 @@ from functions import *
 plt.rcParams.update({'font.size': plot_font_size})
 ####################
 
-# Data imports #
+# Import pickles #
 start = time.perf_counter()
-df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
-df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
-kettle_df = postprocess_data(prepare_data(import_data(dataset_path_kettle)), start_date=start_date, end_date=end_date)
-tv_df = postprocess_data(prepare_data(import_data(dataset_path_tv)), start_date=start_date, end_date=end_date)
-toaster_df = postprocess_data(prepare_data(import_data(dataset_path_toaster)), start_date=start_date, end_date=end_date)
-fridge_df = postprocess_data(prepare_data(import_data(dataset_path_fridge)), start_date=start_date, end_date=end_date)
-washing_machine_df = postprocess_data(prepare_data(import_data(dataset_path_washing_machine)), start_date=washing_machine_start_date, end_date=washing_machine_end_date)
-computer1_df = postprocess_data(prepare_data(import_data(dataset_path_computer1)), start_date=start_date, end_date=end_date)
-computer2_df = postprocess_data(prepare_data(import_data(dataset_path_computer2)), start_date=start_date, end_date=end_date)
+df_occ_living_room = import_pickle(pickle_path_occ_living_room)
+df_occ_kitchen = import_pickle(pickle_path_occ_kitchen)
+kettle_df = import_pickle(pickle_path_kettle)
+tv_df = import_pickle(pickle_path_tv)
+toaster_df = import_pickle(pickle_path_toaster)
+fridge_df = import_pickle(pickle_path_fridge)
+washing_machine_df = import_pickle(pickle_path_washing_machine)
+computer1_df = import_pickle(pickle_path_computer1)
+computer2_df = import_pickle(pickle_path_computer2)
 print_compute_time_memory(start)
+####################
+
+# Data imports #
+# start = time.perf_counter()
+# df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
+# df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
+# kettle_df = postprocess_data(prepare_data(import_data(dataset_path_kettle)), start_date=start_date, end_date=end_date)
+# tv_df = postprocess_data(prepare_data(import_data(dataset_path_tv)), start_date=start_date, end_date=end_date)
+# toaster_df = postprocess_data(prepare_data(import_data(dataset_path_toaster)), start_date=start_date, end_date=end_date)
+# fridge_df = postprocess_data(prepare_data(import_data(dataset_path_fridge)), start_date=start_date, end_date=end_date)
+# washing_machine_df = postprocess_data(prepare_data(import_data(dataset_path_washing_machine)), start_date=washing_machine_start_date, end_date=washing_machine_end_date)
+# computer1_df = postprocess_data(prepare_data(import_data(dataset_path_computer1)), start_date=start_date, end_date=end_date)
+# computer2_df = postprocess_data(prepare_data(import_data(dataset_path_computer2)), start_date=start_date, end_date=end_date)
+# print_compute_time_memory(start)
+# start = time.perf_counter()
+# export_pickle(df_occ_living_room, pickle_path_occ_living_room)
+# export_pickle(df_occ_kitchen, pickle_path_occ_kitchen)
+# export_pickle(kettle_df, pickle_path_kettle)
+# export_pickle(tv_df, pickle_path_tv)
+# export_pickle(toaster_df, pickle_path_toaster)
+# export_pickle(fridge_df, pickle_path_fridge)
+# export_pickle(washing_machine_df, pickle_path_washing_machine)
+# export_pickle(computer1_df, pickle_path_computer1)
+# export_pickle(computer2_df, pickle_path_computer2)
+# print_compute_time_memory(start)
 ####################
 
 # Appliances #
@@ -121,6 +146,15 @@ def rec():
     for key, value in recs_explained.items():
         print(key, *value, sep='\n')
     
+    # Plot recommendations
+    rec_tv.plot()
+    rec_toaster.plot()
+    rec_kettle.plot()
+    rec_fridge.plot()
+    rec_washing_machine.plot()
+    rec_computer1.plot()
+    rec_computer2.plot()
+
     # Evaluate recommendations
     eval_tv = rs.Evaluator(rec_tv, rec_tv.y_pred)
     eval_toaster = rs.Evaluator(rec_toaster, rec_toaster.y_pred)
@@ -160,8 +194,9 @@ def rec_household():
 def main():
     # Record computation time
     start = time.perf_counter()
-    plot()
     # rec_household()
+    rec()
+    # plot()
     print_compute_time_memory(start)
 
 main()
