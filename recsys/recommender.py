@@ -1,4 +1,6 @@
-from matplotlib import pyplot as plt
+from enum import Enum
+from matplotlib import patches, pyplot as plt
+import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
@@ -130,37 +132,51 @@ class Appliance:
         fig, (ax1, ax2) = plt.subplots(2)
         ax1.plot(df, label=column1, color='red')
         ax1.set_title(f'{label}')
+        ax1.set_ylabel('Power Consumption (W)')
+        ax1.set_xlabel('Date')
+        ax1.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
         if norm_amp != None: 
             amp = self.compute_average_amp()
-            ax1.axhline(y=norm_amp, color='orange', linestyle='--', label='Normal amplitude')
-            ax1.axhline(y=amp, color='blue', linestyle='--', label='Normal amplitude (computed)')
-            ax1.annotate(norm_amp, (df[column1].index[0], norm_amp), color='orange')
+            # ax1.axhline(y=norm_amp, color='orange', linestyle='--', label='Normal amplitude')
+            ax1.axhline(y=amp, color='blue', linestyle='--', label='Appliance Average Power Consumption (AAPC)')
+            # ax1.annotate(norm_amp, (df[column1].index[0], norm_amp), color='orange')
             ax1.annotate(amp, (df[column1].index[0], amp), color='blue')
         if norm_freq != None: 
-            ax1.axhline(y=norm_freq, color='green', linestyle='-.', label=f'Normal frequency ({self.groupby})')
+            ax1.axhline(y=norm_freq, color='green', linestyle='-.', label=f'Average Usage Frequency (AAUF) in {self.groupby}')
             ax1.annotate(norm_freq, (df[column1].index[0], norm_freq), color='green')
         for i, segment in enumerate(features):
             for j, _segment in enumerate(segment[1]): 
                 ax2.plot(_segment.index, _segment[column1])
-                ax2.annotate(f'{i}-{j}', (_segment.index[0], _segment[column1].max()))
+                # ax2.annotate(f'{i}-{j}', (_segment.index[0], _segment[column1].max()))
         ax2.set_title(f'{column1} segments')
         ax1.set_xlim([df.index[0], df.index[-1]])
         ax2.set_xlim([df.index[0], df.index[-1]])
         ax2.set_ylim([0, df[column1].max()])
+        ax2.set_ylabel('Power Consumption (W)')
+        ax2.set_xlabel('Date')
+        ax2.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
         fig.tight_layout()
         fig.legend()
         plt.show()
 ####################
 
 # Class definition #
+class RecommendationType(Enum):
+    AMP = 1
+    FREQ = 2
+    OCC = 3
+####################
+
+# Class definition #
 class Recommendation:
-    def __init__(self, datetime, duration: int, app: Appliance, action: int, explanation: str):
+    def __init__(self, datetime, duration: int, app: Appliance, action: int, explanation: str, type: RecommendationType):
         self._datetime = datetime
         self._duration = duration
         self._app = app
         self._action = action
         self._explanation = explanation
         self._relevance = 0
+        self.type = type
 
     @property
     def datetime(self):
@@ -258,7 +274,10 @@ class Recommender:
                     duration=len(feature) * self.app.sample_rate,
                     app=self.app,
                     action=1,
-                    explanation=f"Amplitude Recommendation: Reduce consumption amplitude, Average amplitude: {avg_amp} W, Normal amplitude: {norm_amp} W"
+                    # explanation=f"Amplitude Recommendation: Reduce consumption amplitude, Average amplitude: {avg_amp} W, Normal amplitude: {norm_amp} W",
+                    # Format avg_amp to 2 decimal places
+                    explanation=f"{avg_amp:.2f} W",
+                    type=RecommendationType.AMP
                 )
                 recs.append(rec)
         return recs
@@ -278,7 +297,9 @@ class Recommender:
                     duration=len(feature) * self.app.sample_rate,
                     app=self.app,
                     action=1,
-                    explanation=f"Frequency Recommendation: Reduce consumption frequency, Frequency: {len(feature)}, Normal frequency: {norm_freq}"
+                    # explanation=f"Frequency Recommendation: Reduce consumption frequency, Frequency: {len(feature)}, Normal frequency: {norm_freq}",
+                    explanation=f"{len(feature)}",
+                    type=RecommendationType.FREQ
                 )
                 recs.append(rec)
         return recs
@@ -311,13 +332,17 @@ class Recommender:
 
         if verbose: print('Generating occupancy-based recommendations...')
         for i, (period, feature) in enumerate(features):
-            if feature[0][column].mean() > threshold and len(feature) > duration:
+            mean_power = feature[0][column].mean()
+            duration = len(feature) * self.app.sample_rate
+            if mean_power > threshold and len(feature) > duration:
                 rec = Recommendation(
                     datetime=period,
-                    duration=len(feature) * self.app.sample_rate,
+                    duration=duration,
                     app=self.app,
                     action=1, # 1: change state, 0: don't change
-                    explanation=f"Occupancy Recommendation: Turn off the appliance, Consumption duration: {len(feature)} s, Mean power: {int(feature[0][column].mean())} W, Max power: {int(feature[0][column].max())} W"
+                    # explanation=f"Occupancy Recommendation: Turn off the appliance, Consumption duration: {len(feature)} s, Mean power: {int(feature[0][column].mean())} W, Max power: {int(feature[0][column].max())} W",
+                    explanation=f"{duration} s, {mean_power} W",
+                    type=RecommendationType.OCC
                 )
                 recs.append(rec) 
         return recs
@@ -330,6 +355,45 @@ class Recommender:
         # Sort recommendations by relevance in descending order
         self._recs.sort(key=lambda x: x.relevance, reverse=True)
         return self._recs
+
+    def plot(self):
+        if len(self._recs) == 0:
+            # Throw warning because recs is empty
+            print('No recommendations generated yet. Call generate() first.')
+            return
+        fig, ax = plt.subplots()
+        ax.plot(self.app.df.index, self.app.df[self.app.column], color='grey', label=self.app.label)
+
+        for rec in self._recs:
+            # Plot recommendation and color them according to their type (amp, freq, occ)
+            if rec.type == RecommendationType.AMP:
+                ax.axvline(x=rec.datetime, ymin=0.9, ymax=0.95, color='red', linestyle='-')
+                # ax.axvspan(rec.datetime, rec.datetime + pd.Timedelta(seconds=rec.duration) * 3, color='red', alpha=0.6)
+                # Annotate text to the left side of the line
+                ax.annotate(rec.explanation, xy=(rec.datetime, rec.app.df[self.app.column].max()), xytext=(rec.datetime, rec.app.df[self.app.column].max()))
+            elif rec.type == RecommendationType.FREQ:
+                x = rec.datetime + pd.Timedelta(hours=1)
+                ax.axvline(x=x, color='blue', ymin=0.9, ymax=0.95, linestyle='-')
+                ax.annotate(rec.explanation, xy=(x, rec.app.df[self.app.column].max()), xytext=(x, rec.app.df[self.app.column].max() + 1))
+            elif rec.type == RecommendationType.OCC:
+                ax.axvspan(rec.datetime, rec.datetime + pd.Timedelta(seconds=rec.duration), color='green', alpha=0.8)
+                ax.annotate(rec.explanation, xy=(rec.datetime, rec.app.df[self.app.column].max()), xytext=(rec.datetime, rec.app.df[self.app.column].max() + 2))
+        # Manually create legend
+        ax.legend(handles=[
+            patches.Patch(color='red', label='Amplitude'),
+            patches.Patch(color='blue', label='Frequency'),
+            patches.Patch(color='green', label='Occupancy')
+        ])
+        # Plot normal amplitude
+        ax.axhline(y=self.app.norm_amp, color='black', linestyle='--', label='Normal amplitude')
+        ax.annotate(f"An: {self.app.norm_amp:.2f} W", xy=(self.app.df.index[0], self.app.norm_amp), xytext=(self.app.df.index[0], self.app.norm_amp + 1))
+        # Plot normal frequency
+        ax.axhline(y=self.app.norm_freq, color='black', linestyle='--', label='Normal frequency')
+        ax.annotate(f"fn: {self.app.norm_freq}", xy=(self.app.df.index[0], self.app.norm_freq), xytext=(self.app.df.index[0], self.app.norm_freq + 1))
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Power (W)')
+        ax.set_title('Recommendations for \'{}\''.format(self.app.label))
+        plt.show()
 ####################
 
 # Class definition #
@@ -518,6 +582,7 @@ class Evaluator:
         print("y_true:\t   |\t1\t|\t0\t|")
         print("y_pred:\t 1 |\t{}\t|\t{}\t|".format(self.__tp(), self.__fp()))
         print("y_pred:\t 0 |\t{}\t|\t{}\t|".format(self.__fn(), self.__tn()))
+###################
 
 # Class defintion #
 class Household:
@@ -569,10 +634,4 @@ class Household:
 
         return avg_metrics
             
-
-
-            
-        
-        
-
 ####################

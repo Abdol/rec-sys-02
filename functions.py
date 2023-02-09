@@ -33,6 +33,15 @@ def postprocess_data(df, start_date = None, end_date = None):
         df = df.loc[start_date:end_date]
     return df
 
+def export_pickle(df, path):
+    print(f'Exporting pickle to {path}...')
+    df.to_pickle(path)
+
+def import_pickle(path):
+    print(f'Importing pickle from {path}...')
+    df = pd.read_pickle(path)
+    return df
+
 def plot_data(df):
     print('Plotting data...')
     plt.plot(df)
