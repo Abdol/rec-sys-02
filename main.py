@@ -147,13 +147,31 @@ def rec():
         print(key, *value, sep='\n')
     
     # Plot recommendations
-    rec_tv.plot()
-    rec_toaster.plot()
-    rec_kettle.plot()
-    rec_fridge.plot()
-    rec_washing_machine.plot()
-    rec_computer1.plot()
-    rec_computer2.plot()
+    # rec_tv.plot()
+    # rec_toaster.plot()
+    # rec_kettle.plot()
+    # rec_fridge.plot()
+    # rec_washing_machine.plot()
+    # rec_computer1.plot()
+    # rec_computer2.plot()
+
+    # Compute savings
+    tariff = 31.4450 # p/kWh
+    savings_tv = rec_tv.savings(tariff)
+    savings_toaster = rec_toaster.savings(tariff)
+    savings_kettle = rec_kettle.savings(tariff)
+    savings_fridge = rec_fridge.savings(tariff)
+    savings_washing_machine = rec_washing_machine.savings(tariff)
+    savings_computer1 = rec_computer1.savings(tariff)
+    savings_computer2 = rec_computer2.savings(tariff)
+    print('\nSavings:')
+    if savings_tv is not None: print('TV:', savings_tv / 100, '£')
+    if savings_toaster is not None: print('Toaster:', savings_toaster / 100, '£')
+    if savings_kettle is not None: print('Kettle:', savings_kettle / 100, '£')
+    if savings_fridge is not None: print('Fridge:', savings_fridge / 100, '£')
+    if savings_washing_machine is not None: print('Washing Machine:', savings_washing_machine / 100, '£')
+    if savings_computer1 is not None: print('Computer 1:', savings_computer1 / 100, '£')
+    if savings_computer2 is not None: print('Computer 2:', savings_computer2 / 100, '£\n')
 
     # Evaluate recommendations
     eval_tv = rs.Evaluator(rec_tv, rec_tv.y_pred)

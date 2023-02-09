@@ -291,14 +291,15 @@ class Recommender:
         if verbose: print('Generating frequency-based recommendations...')
         # Convert features into a dataframe
         for i, (period, feature) in enumerate(features):
-            if len(feature) > norm_freq:
+            f = len(feature)
+            if f > norm_freq:
                 rec = Recommendation(
                     datetime=period,
-                    duration=len(feature) * self.app.sample_rate,
+                    duration=f * self.app.width_threshold * self.app.sample_rate,
                     app=self.app,
                     action=1,
                     # explanation=f"Frequency Recommendation: Reduce consumption frequency, Frequency: {len(feature)}, Normal frequency: {norm_freq}",
-                    explanation=f"{len(feature)}",
+                    explanation=f"{f}",
                     type=RecommendationType.FREQ
                 )
                 recs.append(rec)
@@ -346,6 +347,30 @@ class Recommender:
                 )
                 recs.append(rec) 
         return recs
+
+    def savings(self, tariff):
+        # TODO: fix calculation errors
+        """
+        Savings (WRONG):
+        TV: 2.8562541666666665 £
+        Toaster: 31.47722310908516 £
+        Fridge: 0.28330513425183645 £
+        Washing Machine: 36.945064384182054 £
+        Computer 1: 0.00855507403451854 £
+        Computer 2: 0.01115947418668977 £
+        """
+        """Calculate the total savings of the recommendations"""
+        if len(self._recs) == 0:
+            # Throw warning because recs is empty
+            print('No recommendations generated yet. Call generate() first.')
+            return
+        recs = self.recs
+        savings = 0
+        for rec in recs:
+            power_consumed = rec.app.norm_amp * rec.duration
+            power_consumed /= 3600 # convert to kWh
+            savings += power_consumed * tariff
+        return savings
 
     def generate(self):
         if self.config[0]: self._recs += self.freq()
@@ -632,6 +657,5 @@ class Household:
         for key in avg_metrics:
             avg_metrics[key] /= len(self._evals)
 
-        return avg_metrics
-            
+        return avg_metrics   
 ####################
