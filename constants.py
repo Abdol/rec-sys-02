@@ -9,12 +9,14 @@ dataset_path_computer1 = '../data/30_11_2022/office_computer_setup_01.csv'
 dataset_path_computer2 = '../data/30_11_2022/office_computer_setup_02.csv'
 dataset_path_occ_kitchen = '../data/30_11_2022/kitchen_occupancy.csv'
 dataset_path_occ_living_room = '../data/30_11_2022/living_room_occupancy.csv'
-start_date = '2022-08-20 00:00:00'
-end_date = '2022-09-02 23:59:59'
-washing_machine_start_date = '2022-04-28 00:00:00'
+start_date = '2022-08-01 00:00:00'
+end_date = '2022-08-31 23:59:59'
+washing_machine_start_date = '2022-05-28 00:00:00'
 washing_machine_end_date = '2022-05-29 23:59:59'
 plot_font_size = 7 # 13
+plot_size = (15, 8)
 verbose = False
+tariff = 31.4450 # p/kWh
 
 # Pickle paths #
 pickle_path_kettle = '../data/30_11_2022/kitchen_kettle.pkl'

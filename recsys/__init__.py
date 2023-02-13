@@ -1,2 +1,5 @@
-from recsys.recommender import *
-from functions import *
+from .appliance import Appliance
+from .recommendation import Recommendation, RecommendationType
+from .recommender import Recommender
+from .evaluator import Evaluator
+from .building import Building

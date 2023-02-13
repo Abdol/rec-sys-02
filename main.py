@@ -5,9 +5,11 @@ import psutil
 from constants import *
 import recsys as rs
 from functions import *
-plt.rcParams.update({'font.size': plot_font_size})
+from recsys.recommender import RecommendationType
+plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 ####################
 
+print('Starting...')
 # Import pickles #
 start = time.perf_counter()
 df_occ_living_room = import_pickle(pickle_path_occ_living_room)
@@ -116,13 +118,13 @@ def plot():
 def rec():
     print('Generating recommendations between {} and {}...'.format(start_date, end_date))
     # Instantiate a recommender
-    rec_tv = rs.Recommender(app=tv, config=[True, True, True])
-    rec_toaster = rs.Recommender(app=toaster, config=[True, True, False])
-    rec_kettle = rs.Recommender(app=kettle, config=[False, True, False])
-    rec_fridge = rs.Recommender(app=fridge, config=[False, True, False])
-    rec_washing_machine = rs.Recommender(app=washing_machine, config=[True, True, False])
-    rec_computer1 = rs.Recommender(app=computer1, config=[True, True, False])
-    rec_computer2 = rs.Recommender(app=computer2, config=[True, True, False])
+    rec_tv = rs.Recommender(app=tv, config={RecommendationType.AMP, RecommendationType.FREQ, RecommendationType.OCC})
+    rec_toaster = rs.Recommender(app=toaster, config={RecommendationType.AMP, RecommendationType.FREQ})
+    rec_kettle = rs.Recommender(app=kettle, config={RecommendationType.FREQ})
+    rec_fridge = rs.Recommender(app=fridge, config={RecommendationType.AMP})
+    rec_washing_machine = rs.Recommender(app=washing_machine, config={RecommendationType.FREQ, RecommendationType.AMP})
+    rec_computer1 = rs.Recommender(app=computer1, config={RecommendationType.AMP})
+    rec_computer2 = rs.Recommender(app=computer2, config={RecommendationType.AMP})
     
     # Generate recommendations
     recs_tv = rec_tv.generate()
@@ -135,13 +137,13 @@ def rec():
     
     # Print recommendations
     recs_explained = {
-        'tv':[str(row.relevance) + " " + row.explanation for row in recs_tv],
-        'toaster':[str(row.relevance) + " " + row.explanation for row in recs_toaster],
-        'kettle':[str(row.relevance) + " " + row.explanation for row in recs_kettle],
-        'fridge':[str(row.relevance) + " " + row.explanation for row in recs_fridge],
-        'washing_machine':[str(row.relevance) + " " + row.explanation for row in recs_washing_machine],
-        'computer1':[str(row.relevance) + " " + row.explanation for row in recs_computer1],
-        'computer2':[str(row.relevance) + " " + row.explanation for row in recs_computer2]
+        'tv:':[str(row.relevance) + " " + row.explanation for row in recs_tv],
+        'toaster:':[str(row.relevance) + " " + row.explanation for row in recs_toaster],
+        'kettle:':[str(row.relevance) + " " + row.explanation for row in recs_kettle],
+        'fridge:':[str(row.relevance) + " " + row.explanation for row in recs_fridge],
+        'washing_machine:':[str(row.relevance) + " " + row.explanation for row in recs_washing_machine],
+        'computer1:':[str(row.relevance) + " " + row.explanation for row in recs_computer1],
+        'computer2:':[str(row.relevance) + " " + row.explanation for row in recs_computer2]
     }; print('\nRecommendations:')
     for key, value in recs_explained.items():
         print(key, *value, sep='\n')
@@ -156,21 +158,20 @@ def rec():
     # rec_computer2.plot()
 
     # Compute savings
-    tariff = 31.4450 # p/kWh
-    savings_tv = rec_tv.savings(tariff)
-    savings_toaster = rec_toaster.savings(tariff)
-    savings_kettle = rec_kettle.savings(tariff)
-    savings_fridge = rec_fridge.savings(tariff)
-    savings_washing_machine = rec_washing_machine.savings(tariff)
-    savings_computer1 = rec_computer1.savings(tariff)
-    savings_computer2 = rec_computer2.savings(tariff)
     print('\nSavings:')
+    savings_tv = rec_tv.savings(tariff)
     if savings_tv is not None: print('TV:', savings_tv / 100, '£')
+    savings_toaster = rec_toaster.savings(tariff)
     if savings_toaster is not None: print('Toaster:', savings_toaster / 100, '£')
+    savings_kettle = rec_kettle.savings(tariff)
     if savings_kettle is not None: print('Kettle:', savings_kettle / 100, '£')
+    savings_fridge = rec_fridge.savings(tariff)
     if savings_fridge is not None: print('Fridge:', savings_fridge / 100, '£')
+    savings_washing_machine = rec_washing_machine.savings(tariff)
     if savings_washing_machine is not None: print('Washing Machine:', savings_washing_machine / 100, '£')
+    savings_computer1 = rec_computer1.savings(tariff)
     if savings_computer1 is not None: print('Computer 1:', savings_computer1 / 100, '£')
+    savings_computer2 = rec_computer2.savings(tariff)
     if savings_computer2 is not None: print('Computer 2:', savings_computer2 / 100, '£\n')
 
     # Evaluate recommendations
@@ -195,25 +196,25 @@ def rec():
 def rec_household():
     print('Generating recommendations between {} and {}...'.format(start_date, end_date))
     # Instantiate a recommender
-    rec_tv = rs.Recommender(app=tv, config=[True, True, True])
-    rec_toaster = rs.Recommender(app=toaster, config=[True, True, False])
-    rec_kettle = rs.Recommender(app=kettle, config=[True, True, False])
-    rec_fridge = rs.Recommender(app=fridge, config=[False, True, False])
-    rec_washing_machine = rs.Recommender(app=washing_machine, config=[True, True, False])
-    rec_computer1 = rs.Recommender(app=computer1, config=[True, True, False])
-    rec_computer2 = rs.Recommender(app=computer2, config=[True, True, False])
+    rec_tv = rs.Recommender(app=tv, config={RecommendationType.AMP, RecommendationType.FREQ, RecommendationType.OCC})
+    rec_toaster = rs.Recommender(app=toaster, config={RecommendationType.AMP, RecommendationType.FREQ})
+    rec_kettle = rs.Recommender(app=kettle, config={RecommendationType.FREQ})
+    rec_fridge = rs.Recommender(app=fridge, config={RecommendationType.AMP})
+    rec_washing_machine = rs.Recommender(app=washing_machine, config={RecommendationType.FREQ, RecommendationType.AMP})
+    rec_computer1 = rs.Recommender(app=computer1, config={RecommendationType.AMP})
+    rec_computer2 = rs.Recommender(app=computer2, config={RecommendationType.AMP})
 
-    house = rs.Household([rec_tv, rec_toaster, rec_kettle, rec_fridge, rec_washing_machine, rec_computer1, rec_computer2])
-    house_recs = house.generate_recs()
-    house.individial_report()
-    house_eval = house.evaluate()
-    print(house_eval)
+    house = rs.Building([rec_tv, rec_toaster, rec_kettle, rec_fridge, rec_washing_machine, rec_computer1, rec_computer2], tariff)
+    house.generate_recs()
+    print(house.individial_report())
+    print('Household report:', house.report())
+    house.plot_recs()
 
 def main():
     # Record computation time
     start = time.perf_counter()
-    # rec_household()
-    rec()
+    rec_household()
+    # rec()
     # plot()
     print_compute_time_memory(start)
 
