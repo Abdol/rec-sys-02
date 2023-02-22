@@ -48,7 +48,7 @@ class Building:
             avg_metrics['ndcg'] += _eval.ndcg
             avg_metrics['coverage'] += _eval.coverage
             avg_metrics['novelty'] += _eval.novelty
-            avg_metrics['cost'] += _eval.savings
+            if _eval.savings is not None: avg_metrics['cost'] += _eval.savings
         for key in avg_metrics:
             avg_metrics[key] /= len(evals)
 

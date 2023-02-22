@@ -124,6 +124,9 @@ class Recommender:
                 recs.append(rec) 
         return recs
 
+    def weather(self):
+        """Method to plot indoor and outdoor temperature and humidity"""
+
     def generate(self):
         if RecommendationType.FREQ in self.config: self._recs += self.freq()
         if RecommendationType.AMP in self.config: self._recs += self.amp()

@@ -11,8 +11,6 @@ from sklearn.ensemble import IsolationForest
 
 # Internal constants #
 verbose = False
-_figsize = (15, 8)
-_gridspec_kw = {'height_ratios': [2, 1]}
 ######################
 
 # Helper functions #
@@ -54,7 +52,7 @@ def plot_data(df):
 
 def plot_data(df, df2, label1 = 'plot1', label2 = 'plot2', fill_between = False, df1_column = 'state', df2_column = 'state'):
     print('Plotting data...')
-    fig, (ax1, ax2) = plt.subplots(2, figsize=_figsize, gridspec_kw=_gridspec_kw)
+    fig, (ax1, ax2) = plt.subplots(2)
     df[df1_column] = zero_to_nan(df[df1_column])
     ax1.step(df.index, df[df1_column], label=label1, color='blue')
     ax2.plot(df2, label=label2, color='green')
