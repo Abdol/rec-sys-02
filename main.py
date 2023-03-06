@@ -12,6 +12,8 @@ plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 print('Starting...')
 # Import pickles #
 start = time.perf_counter()
+df_temp_outdoor = import_pickle(pickle_path_weather_temp)
+df_hum_outdoor = import_pickle(pickle_path_weather_hum)
 df_occ_living_room = import_pickle(pickle_path_occ_living_room)
 df_occ_kitchen = import_pickle(pickle_path_occ_kitchen)
 df_temp_living_room = import_pickle(pickle_path_temp_living_room)
@@ -30,12 +32,16 @@ print_compute_time_memory(start)
 
 # Data imports #
 # start = time.perf_counter()
+# # weather_temp_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'temperature'), start_date=start_date, end_date=end_date)
+# # weather_hum_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'humidity'), start_date=start_date, end_date=end_date)
 # df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
 # df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
 # df_temp_living_room = postprocess_data(prepare_data(import_data(dataset_path_temp_living_room)), start_date=start_date, end_date=end_date)
 # df_temp_office = postprocess_data(prepare_data(import_data(dataset_path_temp_office)), start_date=start_date, end_date=end_date)
-# df_humidity_living_room = postprocess_data(prepare_data(import_data(dataset_path_hum_living_room)), start_date=start_date, end_date=end_date)
-# df_humidity_office = postprocess_data(prepare_data(import_data(dataset_path_hum_office)), start_date=start_date, end_date=end_date)
+# df_hum_living_room = postprocess_data(prepare_data(import_data(dataset_path_hum_living_room)), start_date=start_date, end_date=end_date)
+# df_hum_office = postprocess_data(prepare_data(import_data(dataset_path_hum_office)), start_date=start_date, end_date=end_date)
+# df_temp_outdoor = postprocess_data(prepare_data(import_data(dataset_path_temp_outdoor), 'temperature'), start_date=start_date, end_date=end_date)
+# df_hum_outdoor = postprocess_data(prepare_data(import_data(dataset_path_hum_outdoor), 'humidity'), start_date=start_date, end_date=end_date)
 # kettle_df = postprocess_data(prepare_data(import_data(dataset_path_kettle)), start_date=start_date, end_date=end_date)
 # tv_df = postprocess_data(prepare_data(import_data(dataset_path_tv)), start_date=start_date, end_date=end_date)
 # toaster_df = postprocess_data(prepare_data(import_data(dataset_path_toaster)), start_date=start_date, end_date=end_date)
@@ -49,8 +55,8 @@ print_compute_time_memory(start)
 # export_pickle(df_occ_kitchen, pickle_path_occ_kitchen)
 # export_pickle(df_temp_living_room, pickle_path_temp_living_room)
 # export_pickle(df_temp_office, pickle_path_temp_office)
-# export_pickle(df_humidity_living_room, pickle_path_hum_living_room)
-# export_pickle(df_humidity_office, pickle_path_hum_office)
+# export_pickle(df_hum_living_room, pickle_path_hum_living_room)
+# export_pickle(df_hum_office, pickle_path_hum_office)
 # export_pickle(kettle_df, pickle_path_kettle)
 # export_pickle(tv_df, pickle_path_tv)
 # export_pickle(toaster_df, pickle_path_toaster)
@@ -58,63 +64,65 @@ print_compute_time_memory(start)
 # export_pickle(washing_machine_df, pickle_path_washing_machine)
 # export_pickle(computer1_df, pickle_path_computer1)
 # export_pickle(computer2_df, pickle_path_computer2)
+# export_pickle(df_temp_outdoor, pickle_path_weather_temp)
+# export_pickle(df_hum_outdoor, pickle_path_weather_hum)
 # print_compute_time_memory(start)
 ####################
 
 # Appliances #
-start = time.perf_counter()
-print('Creating appliance objects...')
-kettle = rs.Appliance(
-    df=kettle_df, 
-    label='kettle', 
-    amp_threshold=2500, 
-    width_threshold=20, 
-    norm_amp=3000,
-    norm_freq=3,
-    groupby='1d')
-tv = rs.Appliance(
-    df=tv_df, 
-    label='tv', 
-    amp_threshold=40, 
-    width_threshold=10, 
-    norm_amp=50,
-    norm_freq=1,
-    groupby='1d',
-    df_occ=df_occ_living_room)
-toaster = rs.Appliance(
-    df=toaster_df, 
-    label='toaster', 
-    amp_threshold=500, 
-    width_threshold=20, 
-    # norm_amp=600,
-    norm_freq=2,
-    groupby='1d')
-fridge = rs.Appliance(
-    df=fridge_df,
-    label='fridge',
-    amp_threshold=100,
-    width_threshold=10,
-    groupby='1d')
-washing_machine = rs.Appliance(
-    df=washing_machine_df,
-    label='washing_machine',
-    amp_threshold=100,
-    width_threshold=10,
-    norm_freq=2,
-    groupby='7d')
-computer1 = rs.Appliance(
-    df=computer1_df,
-    label='computer1',
-    amp_threshold=30,
-    width_threshold=20,
-    groupby='1d')
-computer2 = rs.Appliance(
-    df=computer2_df,
-    label='computer2',
-    amp_threshold=30,
-    width_threshold=20,
-    groupby='1d')
-print_compute_time_memory(start)
+# start = time.perf_counter()
+# print('Creating appliance objects...')
+# kettle = rs.Appliance(
+#     df=kettle_df, 
+#     label='kettle', 
+#     amp_threshold=2500, 
+#     width_threshold=20, 
+#     norm_amp=3000,
+#     norm_freq=3,
+#     groupby='1d')
+# tv = rs.Appliance(
+#     df=tv_df, 
+#     label='tv', 
+#     amp_threshold=40, 
+#     width_threshold=10, 
+#     norm_amp=50,
+#     norm_freq=1,
+#     groupby='1d',
+#     df_occ=df_occ_living_room)
+# toaster = rs.Appliance(
+#     df=toaster_df, 
+#     label='toaster', 
+#     amp_threshold=500, 
+#     width_threshold=20, 
+#     # norm_amp=600,
+#     norm_freq=2,
+#     groupby='1d')
+# fridge = rs.Appliance(
+#     df=fridge_df,
+#     label='fridge',
+#     amp_threshold=100,
+#     width_threshold=10,
+#     groupby='1d')
+# washing_machine = rs.Appliance(
+#     df=washing_machine_df,
+#     label='washing_machine',
+#     amp_threshold=100,
+#     width_threshold=10,
+#     norm_freq=2,
+#     groupby='7d')
+# computer1 = rs.Appliance(
+#     df=computer1_df,
+#     label='computer1',
+#     amp_threshold=30,
+#     width_threshold=20,
+#     groupby='1d')
+# computer2 = rs.Appliance(
+#     df=computer2_df,
+#     label='computer2',
+#     amp_threshold=30,
+#     width_threshold=20,
+#     groupby='1d')
+# print_compute_time_memory(start)
 ####################
 
 def plot():
@@ -223,10 +231,13 @@ def rec_household():
     house.plot_recs()
 
 def weather():
-    living_weather = rs.Weather(df_temp_living_room, df_hum_living_room)
-    office_weather = rs.Weather(df_temp_office, df_hum_office)
-    living_weather.plot()
-    office_weather.plot()
+    living_weather = rs.Weather(df_temp_living_room, df_hum_living_room, df_temp_outdoor, df_hum_outdoor)
+    # office_weather = rs.Weather(df_temp_office, df_hum_office)
+    # living_weather.plot()
+    diff = living_weather.trends()
+    print(diff)
+    # living_weather.plot()
+    # office_weather.plot()
     
 
 def main():

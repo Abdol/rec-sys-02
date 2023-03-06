@@ -50,7 +50,7 @@ def zeropad(df, step, method):
     if _verbose: print(df.head(50))
     return df
 
-def filter_data_weather(df):
+def filter_data_weather(df, parameter):
     print('Filtering dataset to extract weather data...')
     df = df[['state_id', 'domain', 'entity_id', 'state', 'attributes', 'last_changed']]
     df = df.query('domain == "weather"')
@@ -71,13 +71,15 @@ def filter_data_weather(df):
     df['datetime'] = df['datetime'].dt.strftime('%Y-%m-%d %H:%M:%S')
     df = df.drop(columns = ['state_id', 'last_changed', 'entity_id', 'domain', 'attributes'])
     df.rename(columns={'state': 'weather'}, inplace=True)
-    column_names = ['datetime', 'ts', 'weather', 'temperature', 'humidity', 'pressure', 'wind_bearing', 'wind_speed']
+    if parameter is None:
+        column_names = ['datetime', 'ts', 'weather', 'temperature', 'humidity', 'pressure', 'wind_bearing', 'wind_speed']
+    else:
+        column_names = ['datetime', 'ts', parameter]
     df = df[pd.notna(df.weather)]
     df = df.drop_duplicates()
     df = df.drop_duplicates(subset=['datetime'])
     df = df.reindex(columns=column_names)
     df.reset_index(drop=True, inplace=True)
-
     return df
 
 def filter_data(df):
@@ -175,9 +177,9 @@ def process_weather():
     df = pd.read_csv(dataset_path)
     print('Dataset loaded from ', dataset_path)
     # df = filter_data(df) # Dataset filtering
-    df = filter_data_weather(df) # Dataset filtering
+    df = filter_data_weather(df, 'humidity') # Dataset filtering
     if _verbose: print(df.head(50))
-    export_weather_data(df, filename='weather') # Export weather data
+    export_weather_data(df, filename='humidity_outdoor') # Export weather data
     print_compute_time_memory(time_start) # Calculate computational power and memory usage
     print('File saved.')
 

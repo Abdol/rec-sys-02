@@ -20,8 +20,8 @@ def import_data(dataset_path, dataset_limit = None):
     if dataset_limit != None: df = df.head(dataset_limit)
     return df
 
-def prepare_data(df):
-    df = df[['datetime', 'state']]
+def prepare_data(df, column='state'):
+    df = df[['datetime', column]]
     df = df.set_index('datetime')
     df.index = pd.to_datetime(df.index)
     df = df.sort_index() 
