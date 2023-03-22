@@ -1,0 +1,11 @@
+Jetson Nano
+
+Computed in   1.5 s and used   0.2 MB memory
+
+Computed in   3.9 s and used   0.2 MB memory
+
+[('tv', {'precision': 0.09090909090909091, 'recall': 1.0, 'f1': 0.16666666666666669, 'mae': 0.9090909090909092, 'rmse': 0.9534625892455924, 'ap': 0.008264462809917356, 'ndcg': 0.4712839156343091, 'coverage': 2.46415770609319e-05, 'novelty': 5406.818181818182, 'cost': 0.0003440951178451179}), ('toaster', {'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'mae': 0.0, 'rmse': 0.0, 'ap': 1.0, 'ndcg': 0.8469284676325276, 'coverage': 3.360215053763441e-06, 'novelty': 205801.0, 'cost': 0.013664148966288052}), ('kettle', {'precision': 1.0, 'recall': 1.0, 'f1': 1.0, 'mae': 0.0, 'rmse': 0.0, 'ap': 1.0, 'ndcg': 1.0, 'coverage': 2.2401433691756272e-06, 'novelty': 900000.0, 'cost': 0.079398625}), ('fridge', {'precision': 0.6666666666666666, 'recall': 1.0, 'f1': 0.8, 'mae': 0.3333333333333333, 'rmse': 0.5773502691896257, 'ap': 0.44444444444444436, 'ndcg': 0.6293436724689722, 'coverage': 1.0954128976348819e-05, 'novelty': 978.5555555555555, 'cost': 4.573197393638131e-05}), ('washing_machine', {'precision': 0, 'recall': 0, 'f1': 0, 'mae': 0, 'rmse': 0, 'ap': 0, 'ndcg': 0, 'coverage': 0.0, 'novelty': 0, 'cost': None}), ('computer1', {'precision': 0.05263157894736842, 'recall': 1.0, 'f1': 0.1, 'mae': 0.9473684210526315, 'rmse': 0.9733285267845752, 'ap': 0.0027700831024930744, 'ndcg': 0.26867446546749624, 'coverage': 2.128136200716846e-05, 'novelty': 19.736842105263158, 'cost': 1.3234427609427608e-06}), ('computer2', {'precision': 0.25, 'recall': 1.0, 'f1': 0.4, 'mae': 0.75, 'rmse': 0.8660254037844386, 'ap': 0.0625, 'ndcg': 0.7092124838722897, 'coverage': 1.4668294847394727e-05, 'novelty': 18.75, 'cost': 1.3234427609427608e-06})]
+No recommendations generated yet. Call generate() first.
+Household report: {'precision': 0.4371724766461608, 'recall': 0.8571428571428571, 'f1': 0.49523809523809526, 'mae': 0.41997038049669627, 'rmse': 0.481452398429176, 'ap': 0.3597112843366935, 'ndcg': 0.5607775721536564, 'coverage': 1.1020817330683282e-05, 'novelty': 158889.2657970684, 'cost': 0.013350749706227348}
+Computed in  28.9 s and used   0.3 MB memory
+

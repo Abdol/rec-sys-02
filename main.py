@@ -4,7 +4,7 @@ from constants import *
 import recsys as rs
 from functions import *
 from recsys.recommender import RecommendationType
-# plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
+plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 ####################
 
 print('Starting...')
