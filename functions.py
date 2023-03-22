@@ -37,7 +37,7 @@ def postprocess_data(df, start_date = None, end_date = None):
 
 def export_pickle(df, path):
     print(f'Exporting pickle to {path}...')
-    df.to_pickle(path, protocol=4)
+    df.to_pickle(path, protocol=3)
 
 def import_pickle(path):
     print(f'Importing pickle from {path}...')
