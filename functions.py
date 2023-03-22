@@ -3,8 +3,9 @@ import time
 import resource
 import pandas as pd
 from enum import Enum
-# from matplotlib import patches, pyplot as plt
-# import matplotlib.dates as mdates
+if plot_enabled:
+    from matplotlib import patches, pyplot as plt
+    import matplotlib.dates as mdates
 import numpy as np
 # from sklearn.ensemble import IsolationForest
 ####################
@@ -37,7 +38,7 @@ def postprocess_data(df, start_date = None, end_date = None):
 
 def export_pickle(df, path):
     print(f'Exporting pickle to {path}...')
-    df.to_pickle(path, protocol=3)
+    df.to_pickle(path)
 
 def import_pickle(path):
     print(f'Importing pickle from {path}...')
