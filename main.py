@@ -4,7 +4,7 @@ from constants import *
 import recsys as rs
 from functions import *
 from recsys.recommender import RecommendationType
-plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
+# plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 ####################
 
 print('Starting...')
@@ -100,6 +100,7 @@ fridge = rs.Appliance(
     label='fridge',
     amp_threshold=100,
     width_threshold=10,
+    norm_freq=8,
     groupby='1d')
 washing_machine = rs.Appliance(
     df=washing_machine_df,
@@ -113,12 +114,14 @@ computer1 = rs.Appliance(
     label='computer1',
     amp_threshold=30,
     width_threshold=20,
+    norm_amp=5,
     groupby='1d')
 computer2 = rs.Appliance(
     df=computer2_df,
     label='computer2',
     amp_threshold=30,
     width_threshold=20,
+    norm_amp=5,
     groupby='1d')
 print_compute_time_memory(start)
 ####################

@@ -24,7 +24,7 @@ class Appliance:
         self._df_occ = df_occ
         self._sample_rate = sample_rate
         self._features = self.__analyze()
-        self._norm_freq = norm_freq if norm_freq else self.compute_average_freq()
+        self._norm_freq = norm_freq # if norm_freq else self.compute_average_freq()
         self._norm_amp = norm_amp if norm_amp else self.compute_average_amp()
 
     @staticmethod
@@ -61,17 +61,17 @@ class Appliance:
 
     def compute_average_freq(self):
         """Compute the average frequency of the appliance"""
-        df = self.df
-        clf = IsolationForest(random_state=0).fit(df)
-        df['freq'] = [1 if pred == -1 else 0 for pred in clf.predict(df)]
-        freq = self.split_at_change_grouped(df, self.groupby, 0, self.width_threshold, 'freq') 
-        average = round(np.mean(np.array([len(f) for p, f in freq])))
-        # kettle_df['state'] = (kettle_df['state'] - kettle_df['state'].min()) / (kettle_df['state'].max() - kettle_df['state'].min()) * 2
-        # plt.plot(kettle_df.index, kettle_df['freq'])
-        # plt.plot(kettle_df.index, kettle_df['state'])
-        # TODO: change parameters to adjust to varying appliances
-        # TODO: Consider returning an average array
-        return average
+        # df = self.df
+        # clf = IsolationForest(random_state=0).fit(df)
+        # df['freq'] = [1 if pred == -1 else 0 for pred in clf.predict(df)]
+        # freq = self.split_at_change_grouped(df, self.groupby, 0, self.width_threshold, 'freq') 
+        # average = round(np.mean(np.array([len(f) for p, f in freq])))
+        # # kettle_df['state'] = (kettle_df['state'] - kettle_df['state'].min()) / (kettle_df['state'].max() - kettle_df['state'].min()) * 2
+        # # plt.plot(kettle_df.index, kettle_df['freq'])
+        # # plt.plot(kettle_df.index, kettle_df['state'])
+        # # TODO: change parameters to adjust to varying appliances
+        # # TODO: Consider returning an average array
+        return 0
 
     @property
     def df(self):

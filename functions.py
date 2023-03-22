@@ -6,7 +6,7 @@ from enum import Enum
 # from matplotlib import patches, pyplot as plt
 # import matplotlib.dates as mdates
 import numpy as np
-from sklearn.ensemble import IsolationForest
+# from sklearn.ensemble import IsolationForest
 ####################
 
 # Internal constants #
