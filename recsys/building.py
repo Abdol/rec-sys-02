@@ -6,7 +6,7 @@ from .evaluator import Evaluator
 
 # Class defintion #
 class Building:
-    def __init__(self, recommenders: list[Recommender], tariff: float):
+    def __init__(self, recommenders, tariff: float):
         self.recommenders = recommenders
         self._recs = []
         self._evals = []
