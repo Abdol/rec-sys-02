@@ -26,6 +26,7 @@ plot_size = (15, 8)
 verbose = False
 tariff = 31.4450 # p/kWh
 plot_enabled = False
+ml_enabled = True
 
 # Pickle paths #
 pickle_path_kettle = 'data/kitchen_kettle.pkl'

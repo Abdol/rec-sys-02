@@ -4,7 +4,6 @@ import resource
 import pandas as pd
 from enum import Enum
 import numpy as np
-# from sklearn.ensemble import IsolationForest
 ####################
 
 # Internal constants #
