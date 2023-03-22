@@ -53,7 +53,7 @@ class Weather:
         df = df.loc[start_date:end_date]
         return df
 
-    def trends(self, plot: bool = False):
+    def diff(self, plot: bool = False):
         print('Getting trends...')
         # self.plot(daily=True)
         # Get differntial of temperature and humidity

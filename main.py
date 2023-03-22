@@ -31,9 +31,9 @@ print_compute_time_memory(start)
 ####################
 
 # Data imports #
-# start = time.perf_counter()
-# # weather_temp_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'temperature'), start_date=start_date, end_date=end_date)
-# # weather_hum_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'humidity'), start_date=start_date, end_date=end_date)
+start = time.perf_counter()
+# weather_temp_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'temperature'), start_date=start_date, end_date=end_date)
+# weather_hum_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'humidity'), start_date=start_date, end_date=end_date)
 # df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
 # df_occ_kitchen = postprocess_data(prepare_data(import_data(dataset_path_occ_kitchen)), start_date=start_date, end_date=end_date)
 # df_temp_living_room = postprocess_data(prepare_data(import_data(dataset_path_temp_living_room)), start_date=start_date, end_date=end_date)
@@ -70,59 +70,59 @@ print_compute_time_memory(start)
 ####################
 
 # Appliances #
-# start = time.perf_counter()
-# print('Creating appliance objects...')
-# kettle = rs.Appliance(
-#     df=kettle_df, 
-#     label='kettle', 
-#     amp_threshold=2500, 
-#     width_threshold=20, 
-#     norm_amp=3000,
-#     norm_freq=3,
-#     groupby='1d')
-# tv = rs.Appliance(
-#     df=tv_df, 
-#     label='tv', 
-#     amp_threshold=40, 
-#     width_threshold=10, 
-#     norm_amp=50,
-#     norm_freq=1,
-#     groupby='1d',
-#     df_occ=df_occ_living_room)
-# toaster = rs.Appliance(
-#     df=toaster_df, 
-#     label='toaster', 
-#     amp_threshold=500, 
-#     width_threshold=20, 
-#     # norm_amp=600,
-#     norm_freq=2,
-#     groupby='1d')
-# fridge = rs.Appliance(
-#     df=fridge_df,
-#     label='fridge',
-#     amp_threshold=100,
-#     width_threshold=10,
-#     groupby='1d')
-# washing_machine = rs.Appliance(
-#     df=washing_machine_df,
-#     label='washing_machine',
-#     amp_threshold=100,
-#     width_threshold=10,
-#     norm_freq=2,
-#     groupby='7d')
-# computer1 = rs.Appliance(
-#     df=computer1_df,
-#     label='computer1',
-#     amp_threshold=30,
-#     width_threshold=20,
-#     groupby='1d')
-# computer2 = rs.Appliance(
-#     df=computer2_df,
-#     label='computer2',
-#     amp_threshold=30,
-#     width_threshold=20,
-#     groupby='1d')
-# print_compute_time_memory(start)
+start = time.perf_counter()
+print('Creating appliance objects...')
+kettle = rs.Appliance(
+    df=kettle_df, 
+    label='kettle', 
+    amp_threshold=2500, 
+    width_threshold=20, 
+    norm_amp=3000,
+    norm_freq=3,
+    groupby='1d')
+tv = rs.Appliance(
+    df=tv_df, 
+    label='tv', 
+    amp_threshold=40, 
+    width_threshold=10, 
+    norm_amp=65,
+    norm_freq=1,
+    groupby='1d',
+    df_occ=df_occ_living_room)
+toaster = rs.Appliance(
+    df=toaster_df, 
+    label='toaster', 
+    amp_threshold=500, 
+    width_threshold=20, 
+    # norm_amp=600,
+    norm_freq=2,
+    groupby='1d')
+fridge = rs.Appliance(
+    df=fridge_df,
+    label='fridge',
+    amp_threshold=100,
+    width_threshold=10,
+    groupby='1d')
+washing_machine = rs.Appliance(
+    df=washing_machine_df,
+    label='washing_machine',
+    amp_threshold=100,
+    width_threshold=10,
+    norm_freq=2,
+    groupby='7d')
+computer1 = rs.Appliance(
+    df=computer1_df,
+    label='computer1',
+    amp_threshold=30,
+    width_threshold=20,
+    groupby='1d')
+computer2 = rs.Appliance(
+    df=computer2_df,
+    label='computer2',
+    amp_threshold=30,
+    width_threshold=20,
+    groupby='1d')
+print_compute_time_memory(start)
 ####################
 
 def plot():
@@ -234,19 +234,20 @@ def weather():
     living_weather = rs.Weather(df_temp_living_room, df_hum_living_room, df_temp_outdoor, df_hum_outdoor)
     # office_weather = rs.Weather(df_temp_office, df_hum_office)
     # living_weather.plot()
-    diff = living_weather.trends()
-    print(diff)
+    # diff = living_weather.trends()
+    # print(diff)
     # living_weather.plot()
     # office_weather.plot()
+    heater = rs.VirtualAppliance(weather=living_weather, amp_threshold=1000, norm_amp=2000, groupby='1d')
     
 
 def main():
     # Record computation time
     start = time.perf_counter()
-    # rec_household()
+    rec_household()
     # rec()
     # plot()
-    weather()
+    # weather()
     print_compute_time_memory(start)
 
 main()

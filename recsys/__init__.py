@@ -1,4 +1,4 @@
-from .appliance import Appliance
+from .appliance import *
 from .recommendation import Recommendation, RecommendationType
 from .recommender import Recommender
 from .evaluator import Evaluator

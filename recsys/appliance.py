@@ -153,3 +153,18 @@ class Appliance:
         fig.legend()
         plt.show()
 ####################
+
+# Subclasses of Appliance #
+class VirtualAppliance(Appliance):
+    def __init__(self, weather, amp_threshold, width_threshold = None, df = None, label = None, norm_amp=None, norm_freq=None, groupby='D', sample_rate=1):
+        self.weather = weather
+        _df = self.estimate(norm_amp)
+        # super().__init__(_df, label, amp_threshold, width_threshold, norm_amp, norm_freq, groupby, sample_rate)
+    
+    def estimate(self, norm_amp):
+        diff = self.weather.diff()
+        # Create new column called 'state' and set it to diff * norm_amp
+        max_diff = diff['diff'].max()
+        diff['state'] = (diff['diff']/max_diff) * norm_amp
+        print(diff)
+        # TODO: Add zeroes when diff is less than 1
