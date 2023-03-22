@@ -6,6 +6,7 @@ from enum import Enum
 # from matplotlib import patches, pyplot as plt
 # import matplotlib.dates as mdates
 import numpy as np
+import pickle5 as pickle
 # from sklearn.ensemble import IsolationForest
 ####################
 
@@ -41,8 +42,10 @@ def export_pickle(df, path):
 
 def import_pickle(path):
     print(f'Importing pickle from {path}...')
-    df = pd.read_pickle(path)
-    return df
+    with open(path, "rb") as fh:
+        df = pickle.load(fh)
+        return df
+    # df = pickle.read_pickle(path)
 
 def plot_data(df):
     print('Plotting data...')
