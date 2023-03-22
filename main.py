@@ -1,7 +1,5 @@
 # Imports #
 import time
-import os
-import psutil
 from constants import *
 import recsys as rs
 from functions import *
