@@ -3,9 +3,6 @@ import time
 import resource
 import pandas as pd
 from enum import Enum
-if plot_enabled:
-    from matplotlib import patches, pyplot as plt
-    import matplotlib.dates as mdates
 import numpy as np
 # from sklearn.ensemble import IsolationForest
 ####################

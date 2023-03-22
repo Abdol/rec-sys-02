@@ -3,8 +3,11 @@ import time
 from constants import *
 import recsys as rs
 from functions import *
+if plot_enabled:
+    from matplotlib import patches, pyplot as plt
+    import matplotlib.dates as mdates
+    plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 from recsys.recommender import RecommendationType
-plt.rcParams.update({'font.size': plot_font_size, 'figure.figsize': plot_size})
 ####################
 
 print('Starting...')
