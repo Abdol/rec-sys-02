@@ -228,7 +228,7 @@ def rec_household():
     house.generate_recs()
     print(house.individial_report())
     print('Household report:', house.report())
-    house.plot_recs()
+    # house.plot_recs()
 
 def weather():
     living_weather = rs.Weather(df_temp_living_room, df_hum_living_room, df_temp_outdoor, df_hum_outdoor)
