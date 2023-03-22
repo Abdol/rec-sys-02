@@ -1,5 +1,5 @@
 from functions import *
-
+from constants import *
 
 # Class definition #
 class Appliance:
