@@ -29,7 +29,7 @@ print_compute_time_memory(start)
 ####################
 
 # Data imports #
-start = time.perf_counter()
+# start = time.perf_counter()
 # weather_temp_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'temperature'), start_date=start_date, end_date=end_date)
 # weather_hum_df = postprocess_data(prepare_data(import_data(dataset_path_weather), 'humidity'), start_date=start_date, end_date=end_date)
 # df_occ_living_room = postprocess_data(prepare_data(import_data(dataset_path_occ_living_room)), start_date=start_date, end_date=end_date)
